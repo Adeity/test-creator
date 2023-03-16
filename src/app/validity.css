@@ -1,0 +1,12 @@
+.valid {
+    color: green;
+}
+
+.invalid {
+    color: red;
+    text-decoration: line-through;
+}
+
+.mw-3 {
+    min-width: 5rem;
+}

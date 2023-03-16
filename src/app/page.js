@@ -1,91 +1,103 @@
-import Image from 'next/image'
-import { Inter } from 'next/font/google'
-import styles from './page.module.css'
+"use client"
+import {useState} from "react";
+import './validity.css'
+import {Base64} from "js-base64";
 
-const inter = Inter({ subsets: ['latin'] })
+export default function Main() {
+    const [elements, setElements] = useState([
+        {
+            type: "text",
+            value: "Tohle je příklad toho, jak může vypadat test, kde uživatel musí něco "
+        },
+        {
+            type: "input",
+            value: "doplnit"
+        },
+        {
+            type: "text",
+            value: "."
+        },
+    ])
 
-export default function Home() {
-  return (
-    <main className={styles.main}>
-      <div className={styles.description}>
-        <p>
-          Get started by editing&nbsp;
-          <code className={styles.code}>src/app/page.js</code>
-        </p>
-        <div>
-          <a
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{' '}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className={styles.vercelLogo}
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
-        </div>
-      </div>
+    const [url, setUrl] = useState(null)
 
-      <div className={styles.center}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-        <div className={styles.thirteen}>
-          <Image src="/thirteen.svg" alt="13" width={40} height={31} priority />
-        </div>
-      </div>
+    function handlePop() {
+        const eSlice = elements.slice()
+        eSlice.pop()
+        setElements(eSlice)
+    }
 
-      <div className={styles.grid}>
-        <a
-          href="https://beta.nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={inter.className}>
-            Docs <span>-&gt;</span>
-          </h2>
-          <p className={inter.className}>
-            Find in-depth information about Next.js features and API.
-          </p>
-        </a>
+    function handleAddText() {
+        const eSlice = elements.slice()
+        eSlice.push({
+            type: "text",
+            value: "..."
+        })
+        setElements(eSlice)
+    }
 
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={inter.className}>
-            Templates <span>-&gt;</span>
-          </h2>
-          <p className={inter.className}>Explore the Next.js 13 playground.</p>
-        </a>
+    function handleAddInput() {
+        const eSlice = elements.slice()
+        eSlice.push({
+            type: "input",
+            value: "..."
+        })
+        setElements(eSlice)
+    }
 
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={inter.className}>
-            Deploy <span>-&gt;</span>
-          </h2>
-          <p className={inter.className}>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
-    </main>
-  )
+    function handleChange(index, value) {
+        console.log(value)
+        const eSlice = elements.slice()
+        eSlice[index].value = value
+        setElements(eSlice)
+    }
+
+    function handleGenerateUrl() {
+        const payloadString = JSON.stringify(elements)
+        const base64encoded = Base64.encode(payloadString)
+
+        setUrl(window.location.href + "test?p="+base64encoded)
+    }
+
+    async function handleCopyUrl() {
+        await navigator.clipboard.writeText(url)
+
+        alert("Bylo zkopírováno url pro dotazník.")
+    }
+
+    const r = elements.map((e, index) => {
+        const popisPole = e.type === 'text' ? "Text" : "K doplnění"
+        const borderClassa = e.type === 'text' ? "border-success" : "border-warning"
+        return (
+            <span key={index}>
+                <span   className={"px-2"}>({popisPole})</span>
+                <input type={"text"}   role={"textbox"} className={"mw-3 border px-2 " + borderClassa} onChange={(ev => handleChange(index, ev.target.value))} value={e.value}/>
+            </span>
+        )
+    })
+    return (
+        <main>
+            <h4>Vytvoření testu</h4>
+            <h6>Přídání/odebrání polí</h6>
+            <input className={"me-1"} type={"button"} value={"Přidat text"} onClick={handleAddText}/>
+            <input className={"me-1"} type={"button"} value={"Přidat k doplnění"} onClick={handleAddInput}/>
+            <input type={"button"} value={"Odebrat poslední"} onClick={handlePop}/>
+            <div className={"py-3"}>
+                {r}
+            </div>
+
+            <div>
+                <input className={"mt-3"} type={"button"} value={"Vygenerovat odkaz"} onClick={handleGenerateUrl}/>
+            </div>
+            {
+                url !== null &&
+                (
+                    <div className={"py-3"}>
+                        <input className={"w-100"} disabled={true} value={url}/>
+                        <input type={"button"} className={"button"} onClick={handleCopyUrl} value={"Zkopírovat"}/>
+                    </div>
+                )
+            }
+        </main>
+    )
 }
