@@ -55,8 +55,9 @@ export default function Main() {
     function handleGenerateUrl() {
         const payloadString = JSON.stringify(elements)
         const base64encoded = Base64.encode(payloadString)
+        const uriEncoded = encodeURIComponent(base64encoded)
 
-        setUrl(window.location.href + "test?p="+base64encoded)
+        setUrl(window.location.href + "test?p="+uriEncoded)
     }
 
     async function handleCopyUrl() {

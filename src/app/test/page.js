@@ -7,7 +7,8 @@ import '../validity.css'
 export default function Home() {
     const searchParams = useSearchParams()
     const encodedSearchParams = searchParams.get('p')
-    const decoded = Base64.decode(encodedSearchParams)
+    const uriDecoded = decodeURIComponent(encodedSearchParams)
+    const decoded = Base64.decode(uriDecoded)
     console.log("decoded: ",decoded)
     const payload = JSON.parse(decoded)
 
